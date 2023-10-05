@@ -1,0 +1,28 @@
+﻿<style>
+    a{
+        text-decoration: none; 
+    }
+
+    .logBtn{
+        background: #505050;
+        color: #fff;
+        border: none;
+        font-size: 18px;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+
+    .logBtn:hover{
+        color: #f4f4f4;
+        background: #404040;
+    }
+</style>
+
+<AuthorizeView>
+    <Authorized>
+        <a class="logBtn" href="logout">Log out</a>
+    </Authorized>
+    <NotAuthorized>
+        <a class="logBtn" href="login?redirectUri=/">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>

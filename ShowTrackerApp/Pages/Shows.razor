@@ -1,0 +1,168 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Forms
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Popups
+@using TvShowTracker.Models
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+
+
+
+@*Show Grid*@
+<div>
+    <SfGrid DataSource="@ShowsList" Toolbar="ToolBarOptions">
+        <GridEvents RowSelected="RowSelectHandler"  OnToolbarClick="ToolbarClickHandler" TValue="Show"></GridEvents>
+        
+        <GridColumns>
+            <GridColumn Field="@nameof(Show.Name)"
+                        HeaderText="Show Name"
+                        TextAlign="@TextAlign.Left"
+                        Width="20">
+            </GridColumn>
+            <GridColumn Field="@nameof(Show.Genre)"
+                        HeaderText="Genre"
+                        TextAlign="@TextAlign.Left"
+                        Width="20">
+            </GridColumn>
+            <GridColumn Field="@nameof(Show.ImdbRating)"
+                        HeaderText="Imdb Rating"
+                        TextAlign="@TextAlign.Left"
+                        Width="20">
+            </GridColumn>
+            <GridColumn Field="@nameof(Show.Series)"
+                        HeaderText="Series"
+                        TextAlign="@TextAlign.Left"
+                        Width="20">
+            </GridColumn>
+            <GridColumn Field="@nameof(Show.Episode)"
+                        HeaderText="Episode"
+                        TextAlign="@TextAlign.Left"
+                        Width="20">
+            </GridColumn>
+            <GridColumn Field="@nameof(Show.CurrentlyWatchingText)"
+                        HeaderText="Currently Watching"
+                        TextAlign="@TextAlign.Left"
+                        Width="20">
+            </GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+@*style*@
+<style>
+    #target {
+        min-height: 400px;
+        height: 100%;
+      
+    }
+</style>
+<style>
+    .form-label {
+        font-size: 12px;
+        font-family: inherit; 
+        font-weight:500;
+    }
+</style>
+
+@*Add show dialog box*@
+<div id="target">
+    <SfDialog @ref="_dialogBoxAdd" Target="#target" IsModal="true" Width="500px" Height="500px" ShowCloseIcon="true" Visible="false">
+        <DialogTemplates>
+            <Header>@_headerText</Header>
+        </DialogTemplates>
+        <EditForm Model="@_showToModify" OnValidSubmit="@SaveNewShow">
+            <div>
+                <SfTextBox Enabled="true" Placeholder="Show Name" FloatLabelType="@FloatLabelType.Auto"
+                @bind-Value="_showToModify.Name"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="String" Placeholder="Genre" DataSource="@GenreArr"
+                                FloatLabelType="@FloatLabelType.Auto" @bind-Value=_showToModify.Genre></SfDropDownList>
+            </div>
+            <div class="e-footer-content">
+                <div class="button-container">
+                    <button type="submit" class="e-btn e-normal e-primary">Save</button>
+                    <button type="button" class="e-btn e-normal" @onclick="@CloseDialogBox">Cancel</button>
+                </div>
+            </div>
+        </EditForm>
+
+    </SfDialog>
+</div>
+
+@*Edit show dialog box*@
+<div id="target">
+    <SfDialog @ref="_dialogBoxEdit" Target="#target" IsModal="true" Width="500px" Height="500px" ShowCloseIcon="true" Visible="false">
+        <DialogTemplates>
+            <Header>@_headerText</Header>
+        </DialogTemplates>
+        <EditForm Model="@_showToModify" OnValidSubmit="@SaveEdits">
+            <div>
+                <SfTextBox Enabled="true" Placeholder="Show Name" FloatLabelType="@FloatLabelType.Auto"
+                @bind-Value="_showToModify.Name"></SfTextBox>
+                <SfDropDownList TValue="string" TItem="String" Placeholder="Genre" DataSource="@GenreArr" 
+                    FloatLabelType="@FloatLabelType.Auto" @bind-Value=_showToModify.Genre></SfDropDownList>
+                <SfNumericTextBox Enabled="true" Placeholder="Series" FloatLabelType="@FloatLabelType.Auto"
+                @bind-Value="_showToModify.Series"></SfNumericTextBox>
+                <SfNumericTextBox Enabled="true" Placeholder="Episode" FloatLabelType="@FloatLabelType.Always"
+                @bind-Value="_showToModify.Episode"></SfNumericTextBox>
+                <div >
+                    <label class="form-label">Currently Watching</label>
+                    <br />
+                    
+                    <SfSwitch @bind-Checked="@_showToModify.CurrentlyWatching"
+                              OnLabel="Yes"
+                              OffLabel="No"
+                              ></SfSwitch>
+                </div>
+                 
+            </div>
+            <div class="e-footer-content">
+                <div class="button-container">
+                    <button type="submit" class="e-btn e-normal e-primary">Save</button>
+                    <button type="button" class="e-btn e-normal" @onclick="@CloseDialogBox">Cancel</button>
+                </div>
+            </div>
+        </EditForm>
+
+    </SfDialog>
+ 
+</div>
+
+@*Delete show dialog box*@
+<div id="target">
+    <SfDialog @ref="_dialogBoxDelete" Target="#target" IsModal="true" Width="500px" Height="200px" ShowCloseIcon="true" Visible="false">
+        <DialogTemplates>
+            <Header>Delete Show</Header>
+            
+        </DialogTemplates>
+        <EditForm Model="@_showToModify" OnValidSubmit="@DeleteShow">
+
+            <Content><strong>@_showToModify.Name</strong> will be permanently removed, do you want to proceed?</Content>
+            
+            <div class="e-footer-content">
+                <div class="button-container">
+                    <button type="submit" class="e-btn e-normal e-primary">Yes</button>
+                    <button type="button" class="e-btn e-normal" @onclick="@CloseDialogBox">No</button>
+                </div>
+            </div>
+        </EditForm>
+
+    </SfDialog>
+
+</div>
+
+
+
+@*Error dialog box for edit*@
+<div>
+    <SfDialog @ref="_dialogBoxSelectRow" IsModal="true" Width="300px" ShowCloseIcon="true" Visible="false">
+        <DialogTemplates>
+            <Header>No Row Selected</Header>
+            <Content>Please select a row before proceeding with the edit action.</Content>
+        </DialogTemplates>
+        
+    </SfDialog>
+</div>
+
